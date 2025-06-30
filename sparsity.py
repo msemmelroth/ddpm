@@ -1,3 +1,5 @@
+import os
+
 def create_sparsity_mask(inp):
     """returns a tensor all values of 1 or -1 corresponding to the pixel being on or off"""
     new_inp = inp.clone()  
@@ -15,14 +17,13 @@ def get_sparsity_mask(inp):
 
     return sparsity_mask, feature_map
 
-def induce_sparstiy(inp):
+def induce_sparsity(inp):
     "use during sampling to induce sparsity, inp is the featuremap and concatenated sparsity mask"
     mask, map = get_sparsity_mask(inp)
-
-    #map the sparsity mask to 1s and 0s to use as a sort of filter on the feature map. 
-    # mask[mask>0] = 1
-    # mask[mask<=0] = 0
-    mask = (mask > 0).float()
-
+    
+    mask[mask>0] = 1
+    mask[mask<=0] = -1
+    #values less than 0 become 0, values greater than 0 become 1
+    # mask = (mask > 0).float()
 
     return map*mask
