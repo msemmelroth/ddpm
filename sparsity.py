@@ -1,9 +1,9 @@
-import os
+import torch
 
 def create_sparsity_mask(inp):
     """returns a tensor all values of 1 or -1 corresponding to the pixel being on or off"""
     new_inp = inp.clone()  
-    new_inp[new_inp<1] = 0
+    new_inp[new_inp!=0] = 1
     return (2*new_inp) - 1
 
 def get_sparsity_mask(inp):
@@ -18,12 +18,20 @@ def get_sparsity_mask(inp):
     return sparsity_mask, feature_map
 
 def induce_sparsity(inp):
-    "use during sampling to induce sparsity, inp is the featuremap and concatenated sparsity mask"
+    """use during sampling to induce sparsity, inp is the featuremap and concatenated sparsity mask
+    sparsity mask consists of model predictions of 1s and -1s corresponding to the confidence the
+    model has that the given picture should be on or off"""
+
     mask, map = get_sparsity_mask(inp)
     
-    mask[mask>0] = 1
-    mask[mask<=0] = -1
-    #values less than 0 become 0, values greater than 0 become 1
+    mask[mask>0] = 1 #1s correspond to an on pixel
+    mask[mask<=0] = 0 #-1s correspond to an off pixel
+
     # mask = (mask > 0).float()
 
     return map*mask
+
+
+def induce_sparsity_sigmoid(inp): #similar to induce sparsity above but using sigmoid instead of step function
+    map, mask = get_sparsity_mask
+    return map*torch.sigmoid(mask)

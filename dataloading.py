@@ -18,9 +18,9 @@ class MCImageDataset(Dataset):
         img_path = os.path.join(os.getcwd(), self.images_folder, self.images[index])
         image = Image.open(img_path).convert('L')
         transform = transforms.Compose([
+                                transforms.Resize((128,128)),
                                 transforms.ToTensor(),
-                                transforms.Normalize(mean=(0.5,), std=(0.5,)),
-                                transforms.Resize((128,128))])
+                                transforms.Normalize(mean=(0.5,), std=(0.5,))])
         image_tensor = transform(image)  # Shape: (C, H, W)
         return image_tensor
     
